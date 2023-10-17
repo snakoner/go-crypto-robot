@@ -31,13 +31,13 @@ func unixTimeToDate(unix int64) time.Time {
 	return time.Unix(unix, 0)
 }
 
-func __reverseSlice[T any](s []T) {
+func reverseSlice[T any](s []T) {
 	for i := 0; i < len(s)/2; i++ {
 		s[i], s[len(s)-i-1] = s[len(s)-i-1], s[i]
 	}
 }
 
-func __intervalToBybitInterval(timeframe string) bybit.Interval {
+func intervalToBybitInterval(timeframe string) bybit.Interval {
 	switch timeframe {
 	case "1m":
 		return bybit.Interval("1")
@@ -77,7 +77,7 @@ func (e *BybitExchange) GetKlines(name string, stable string, timeframe string) 
 	param := &bybit.V5GetKlineParam{
 		Category: bybit.CategoryV5Spot,
 		Symbol:   bybit.SymbolV5(strings.ToUpper(fmt.Sprintf("%s%s", name, stable))),
-		Interval: __intervalToBybitInterval(timeframe),
+		Interval: intervalToBybitInterval(timeframe),
 	}
 
 	resp, err := e.client.V5().Market().GetKline(*param)
@@ -101,8 +101,9 @@ func (e *BybitExchange) GetKlines(name string, stable string, timeframe string) 
 			Price: close,
 		})
 	}
+
 	// because list order from first to last
-	__reverseSlice(mPoints)
+	reverseSlice(mPoints)
 
 	return mPoints, nil
 }
