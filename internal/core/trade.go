@@ -65,9 +65,15 @@ func (core *Core) openTrade(tracker *models.TokenTracker, mp *models.MarketPoint
 	tracker.Stat.CurrentStopLoss = mp.Price * (1. - core.Config.MaxStopLoss/100.)
 	tracker.Stat.CurrentTakeProfit = mp.Price * (1. + core.Config.MaxTakeProfit/100.)
 
-	// do buy bybit
+	// [todo] bybit.close_deal
+	if err := core.Exch.Bybit().OpenTrade(tracker); err != nil {
+		return err
+	}
 
 	// do initial stop/take
+	if err := core.Exch.Bybit().UpdateLimits(tracker); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -78,13 +84,16 @@ func (core *Core) closeTrade(tracker *models.TokenTracker, mp *models.MarketPoin
 	tracker.Stat.DealActive = false
 
 	// [todo] bybit.close_deal
+	if err := core.Exch.Bybit().CloseTrade(tracker); err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPoint) {
+func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPoint) error {
 	if !core.Config.UseTrailing {
-		return
+		return nil
 	}
 
 	lastPrice := tracker.Stat.CurrentPrice
@@ -105,9 +114,15 @@ func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPo
 			tracker.Stat.CurrentStopLoss = newStopLoss
 			tracker.Stat.CurrentTakeProfit = newTakeProfit
 			// [todo] bybit.set_new_stop_take
+			if err := core.Exch.Bybit().UpdateLimits(tracker); err != nil {
+				if err = core.Exch.Bybit().CloseTrade(tracker); err != nil {
+					return err
+				}
+			}
 		}
 	}
 
+	return nil
 }
 
 func (core *Core) TrackersStart() error {
@@ -129,7 +144,9 @@ func (core *Core) TrackersStart() error {
 				startTrade = core.Strategy.Calculate(tracker)
 			} else {
 				// recalculare stop loss and sell if hit
-				core.evaluateDeal(tracker, &mp)
+				if err := core.evaluateDeal(tracker, &mp); err != nil {
+					return err
+				}
 			}
 
 			// start trade over here
