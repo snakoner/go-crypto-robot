@@ -1,4 +1,6 @@
-package models
+package algorithm
+
+import "github.com/snakoner/go-crypto-robot/internal/models"
 
 type Strategy struct {
 	Node []*StrategyElement
@@ -6,7 +8,7 @@ type Strategy struct {
 
 type StrategyElement struct {
 	Name string
-	Func func([]*MarketPoint) (bool, bool)
+	Func func([]*models.MarketPoint) (bool, bool)
 }
 
 func NewStrategy(algos []string) *Strategy {
@@ -21,7 +23,7 @@ func NewStrategy(algos []string) *Strategy {
 			element.Func = nil
 			break
 		case "rsi":
-			element.Func = nil
+			element.Func = Rsi
 			break
 		default:
 			return nil
@@ -51,7 +53,7 @@ func (s *Strategy) String() string {
 	return ret
 }
 
-func (s *Strategy) Calculate(tracker *TokenTracker) bool {
+func (s *Strategy) Calculate(tracker *models.TokenTracker) bool {
 	for _, node := range s.Node {
 		res := false
 		if tracker.Long {

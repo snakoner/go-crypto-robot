@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/snakoner/go-crypto-robot/internal/algorithm"
 	"github.com/snakoner/go-crypto-robot/internal/errno"
 	"github.com/snakoner/go-crypto-robot/internal/exchanges"
 	"github.com/snakoner/go-crypto-robot/internal/models"
@@ -13,8 +14,8 @@ import (
 type Core struct {
 	Config        *Config
 	Logger        *logrus.Logger
-	Strategy      *models.Strategy
-	Exch          *exchanges.Exchange
+	Strategy      *algorithm.Strategy
+	Exchange      exchanges.ExchangeI
 	TokenTrackers []*models.TokenTracker
 }
 
@@ -24,27 +25,31 @@ func New(config *Config) (*Core, error) {
 		Logger: logrus.New(),
 	}
 
-	fmt.Println(config.Algos)
 	// strategy setup
-	strategy := models.NewStrategy(config.Algos)
+	strategy := algorithm.NewStrategy(config.Algos)
 	if strategy == nil {
 		return core, errno.ErrStrategyConfig
 	}
+
 	core.Strategy = strategy
 
-	core.Logger.Info(fmt.Sprintf("Algos: %s", core.Strategy.String()))
+	core.Logger.Debug(fmt.Sprintf("Algos: %s", core.Strategy.String()))
 
-	// exchange setup
-	core.Exch = new(exchanges.Exchange)
-	if err := core.Exch.Bybit().Connect(
-		core.Config.BybitPublicKey,
-		core.Config.BybitPrivateKey); err != nil {
+	// new exchange
+	switch config.Exchange {
+	case "bybit":
+		core.Exchange = exchanges.NewBybit(config.PublicKey, config.PrivateKey)
+	default:
+		return core, errno.ErrExchangeName
+	}
+
+	// exchange connect
+	if err := core.Exchange.Connect(); err != nil {
 		core.Logger.Error(err)
 	}
 
-	core.Logger.Info(fmt.Sprintf("%s conn success", config.Exchange))
-
-	core.Logger.Info("Core run success")
+	core.Logger.Debug(fmt.Sprintf("%s conn success", config.Exchange))
+	core.Logger.Debug("Core run success")
 
 	return core, nil
 }
@@ -52,7 +57,7 @@ func New(config *Config) (*Core, error) {
 func (core *Core) Start() error {
 	for _, name := range core.Config.Coins {
 		var tokenTracker *models.TokenTracker
-		mp, err := core.Exch.Bybit().GetKlines(name, core.Config.Stablecoin, core.Config.Timeframe)
+		mp, err := core.Exchange.GetKlines(name, core.Config.Stablecoin, core.Config.Timeframe)
 		if err != nil {
 			return err
 		}
@@ -67,12 +72,12 @@ func (core *Core) Start() error {
 
 		core.TokenTrackers = append(core.TokenTrackers, tokenTracker)
 
-		core.Logger.Info(fmt.Sprintf("Size of initial data for %s : %d",
+		core.Logger.Debug(fmt.Sprintf("Size of initial data for %s : %d",
 			name+core.Config.Stablecoin,
 			len(tokenTracker.MarketPoints)))
 
-		go core.Exch.Bybit().WebSocketRun(tokenTracker)
-		go core.TrackersStart()
+		go core.Exchange.WebSocketRun(tokenTracker)
+		go core.trackersStart()
 	}
 
 	time.Sleep(100 * time.Second)

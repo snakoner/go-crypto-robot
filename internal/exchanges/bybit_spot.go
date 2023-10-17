@@ -12,11 +12,21 @@ import (
 )
 
 type BybitExchange struct {
-	exchange *Exchange
-	client   *bybit.Client
+	privateKey string
+	publicKey  string
+	client     *bybit.Client
 }
 
-func (e *BybitExchange) Connect(apiPublic, apiSecret string) error {
+func NewBybit(publicKey, privateKey string) *BybitExchange {
+	bybit := &BybitExchange{
+		privateKey: privateKey,
+		publicKey:  publicKey,
+	}
+
+	return bybit
+}
+
+func (e *BybitExchange) Connect() error {
 	client := bybit.NewClient().WithAuth("your api key", "your api secret")
 	if client == nil {
 		return errno.ErrBybitCouldntAuth
