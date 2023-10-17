@@ -1,1 +1,3 @@
-# go-crypto-robot
+### go-crypto-robot
+#### supported:
+  bybit
