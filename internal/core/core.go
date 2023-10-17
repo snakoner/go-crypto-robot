@@ -19,6 +19,7 @@ type Core struct {
 	TokenTrackers []*models.TokenTracker
 }
 
+// Create trading core and setup, call from main
 func New(config *Config) (*Core, error) {
 	core := &Core{
 		Config: config,
@@ -54,6 +55,7 @@ func New(config *Config) (*Core, error) {
 	return core, nil
 }
 
+// Start trading core, call from main
 func (core *Core) Start() error {
 	for _, name := range core.Config.Coins {
 		var tokenTracker *models.TokenTracker

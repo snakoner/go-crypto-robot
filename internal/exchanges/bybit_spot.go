@@ -11,6 +11,7 @@ import (
 	"github.com/snakoner/go-crypto-robot/internal/models"
 )
 
+// Main Bybit exchange structure
 type BybitExchange struct {
 	privateKey string
 	publicKey  string
@@ -26,6 +27,7 @@ func NewBybit(publicKey, privateKey string) *BybitExchange {
 	return bybit
 }
 
+// Connect to bybit spot, save connection to BybitExchange
 func (e *BybitExchange) Connect() error {
 	client := bybit.NewClient().WithAuth("your api key", "your api secret")
 	if client == nil {
@@ -118,14 +120,17 @@ func (e *BybitExchange) GetKlines(name string, stable string, timeframe string) 
 	return mPoints, nil
 }
 
+// Bybit: open market order
 func (e *BybitExchange) OpenTrade(tracker *models.TokenTracker) error {
 	return nil
 }
 
+// Bybit: close market order
 func (e *BybitExchange) CloseTrade(tracker *models.TokenTracker) error {
 	return nil
 }
 
+// Bybit: change stop loss and take profit
 func (e *BybitExchange) UpdateLimits(tracker *models.TokenTracker) error {
 	return nil
 }

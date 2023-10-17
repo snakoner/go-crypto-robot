@@ -34,6 +34,7 @@ func timeframeToSeconds(timeframe string) int64 {
 	return 0
 }
 
+// Round time
 func roundedValue(prevTime, currentTime int64, timeframe string) (int64, bool) {
 	timeFrameSeconds := timeframeToSeconds(timeframe)
 	// round to minute
@@ -45,6 +46,7 @@ func roundedValue(prevTime, currentTime int64, timeframe string) (int64, bool) {
 	return currentTime, false
 }
 
+// If next time > timeframe then push market point, else update price value
 func (core *Core) updateMarketPoints(tracker *models.TokenTracker, currentMarketPoint *models.MarketPoint) {
 	prevMarketPoint := tracker.GetLastPoint()
 	roundedTime, needPush := roundedValue(int64(prevMarketPoint.Time), int64(currentMarketPoint.Time), core.Config.Timeframe)
@@ -57,6 +59,7 @@ func (core *Core) updateMarketPoints(tracker *models.TokenTracker, currentMarket
 	}
 }
 
+// Wrapper for open order
 func (core *Core) openTrade(tracker *models.TokenTracker, mp *models.MarketPoint) error {
 	tracker.Stat.DealActive = true
 	tracker.Stat.EnterPrice = mp.Price
@@ -78,6 +81,7 @@ func (core *Core) openTrade(tracker *models.TokenTracker, mp *models.MarketPoint
 	return nil
 }
 
+// Wrapper for close order
 func (core *Core) closeTrade(tracker *models.TokenTracker, mp *models.MarketPoint) error {
 	tracker.Stat.ExitPrice = mp.Price
 	tracker.Stat.ExitTime = time.Now().Unix()
@@ -91,6 +95,7 @@ func (core *Core) closeTrade(tracker *models.TokenTracker, mp *models.MarketPoin
 	return nil
 }
 
+// Change stoploss / takeprofit or close the order if hit
 func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPoint) error {
 	if !core.Config.UseTrailing {
 		return nil
@@ -125,6 +130,7 @@ func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPo
 	return nil
 }
 
+// Run as goroutine. Fetches the value from market point channel and evaluate stratefy
 func (core *Core) trackersStart() error {
 	var mp models.MarketPoint
 

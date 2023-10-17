@@ -9,6 +9,7 @@ import (
 	"github.com/snakoner/go-crypto-robot/internal/models"
 )
 
+// Run as goroutine. This func send market point to mp channel
 func (e *BybitExchange) WebSocketRun(tracker *models.TokenTracker) error {
 	wsClient := bybit.NewWebsocketClient()
 	svc, err := wsClient.Spot().V1().PublicV1()

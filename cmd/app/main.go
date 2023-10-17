@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 
 	"github.com/BurntSushi/toml"
 	"github.com/snakoner/go-crypto-robot/internal/core"
@@ -33,8 +32,6 @@ func main() {
 	if err != nil {
 		return
 	}
-
-	fmt.Println(core.Config)
 
 	if err := core.Start(); err != nil {
 		return
