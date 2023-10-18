@@ -98,16 +98,16 @@ func (core *Core) closeTrade(tracker *models.TokenTracker, mp *models.MarketPoin
 
 // Change stoploss / takeprofit or close the order if hit
 func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPoint) error {
-	if !core.Config.UseTrailing {
-		return nil
-	}
-
 	lastPrice := tracker.Stat.CurrentPrice
 	currPrice := mp.Price
 
 	if currPrice <= tracker.Stat.CurrentStopLoss || currPrice >= tracker.Stat.CurrentTakeProfit {
 		// close deal
 		core.closeTrade(tracker, mp)
+	}
+
+	if !core.Config.UseTrailing {
+		return nil
 	}
 
 	diff := currPrice - lastPrice

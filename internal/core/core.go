@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/sirupsen/logrus"
 	"github.com/snakoner/go-crypto-robot/internal/algorithm"
@@ -17,6 +18,7 @@ type Core struct {
 	Strategy      *algorithm.Strategy
 	Exchange      exchanges.ExchangeI
 	TokenTrackers []*models.TokenTracker
+	LogFile       *os.File
 }
 
 // Create trading core and setup, call from main
@@ -25,6 +27,22 @@ func New(config *Config) (*Core, error) {
 		Config: config,
 		Logger: logrus.New(),
 	}
+
+	// set logrus output
+	f, err := os.OpenFile(config.LogFilename, os.O_WRONLY|os.O_CREATE, 0755)
+	if err != nil {
+		core.Logger.Error("cant open log file")
+		return core, err
+	}
+
+	logrusLevel, err := logrus.ParseLevel(config.LogLevel)
+	if err != nil {
+		return core, err
+	}
+
+	core.Logger.SetLevel(logrusLevel)
+	core.LogFile = f
+	core.Logger.SetOutput(f)
 
 	// strategy setup
 	strategy := algorithm.NewStrategy(config.Algos)

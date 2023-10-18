@@ -2,6 +2,8 @@ package core
 
 type Config struct {
 	IsSpot        bool     `toml:"is_spot"`
+	LogFilename   string   `toml:"log_filename"`
+	LogLevel      string   `toml:"log_level"`
 	Stablecoin    string   `toml:"stablecoin"`
 	Coins         []string `toml:"coins"`
 	Algos         []string `toml:"algos"`
