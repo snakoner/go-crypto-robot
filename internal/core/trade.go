@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -131,7 +132,7 @@ func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPo
 }
 
 // Run as goroutine. Fetches the value from market point channel and evaluate stratefy
-func (core *Core) trackersStart() error {
+func (core *Core) trackersStart(ctx context.Context) error {
 	var mp models.MarketPoint
 
 	tracker := core.TokenTrackers[0]
@@ -164,7 +165,11 @@ func (core *Core) trackersStart() error {
 			}
 			// code
 		case <-tracker.Exit:
-			core.Logger.Error("error on websocket connection")
+			core.Logger.Info("close websocket connection")
+			return nil
+		case <-ctx.Done():
+			core.Logger.Info("app finished by user")
+			tracker.Exit <- true
 			return nil
 		}
 	}

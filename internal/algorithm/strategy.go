@@ -1,6 +1,8 @@
 package algorithm
 
-import "github.com/snakoner/go-crypto-robot/internal/models"
+import (
+	"github.com/snakoner/go-crypto-robot/internal/models"
+)
 
 type Strategy struct {
 	Node []*StrategyElement

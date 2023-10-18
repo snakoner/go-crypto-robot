@@ -15,13 +15,15 @@ func (e *BybitExchange) WebSocketRun(tracker *models.TokenTracker) error {
 	svc, err := wsClient.Spot().V1().PublicV1()
 
 	defer func() {
-		fmt.Printf("Connection closed for %s", tracker.Name)
+		fmt.Printf("Connection closed for %s\n", tracker.Name)
+		tracker.Exit <- true
 		svc.Close()
 	}()
 
 	if err != nil {
 		return err
 	}
+
 	_, err = svc.SubscribeTrade(bybit.SymbolSpotBTCUSDT, func(response bybit.SpotWebsocketV1PublicV1TradeResponse) error {
 		price, err := strconv.ParseFloat(response.Data[len(response.Data)-1].Price, 64)
 		if err != nil {

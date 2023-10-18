@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 
 	"github.com/BurntSushi/toml"
@@ -18,6 +19,9 @@ func init() {
 func main() {
 	flag.Parse()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	config, err := core.NewConfig()
 	if err != nil {
 		return
@@ -33,7 +37,7 @@ func main() {
 		return
 	}
 
-	if err := core.Start(); err != nil {
+	if err := core.Start(ctx); err != nil {
 		return
 	}
 }

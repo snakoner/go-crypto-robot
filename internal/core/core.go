@@ -1,8 +1,8 @@
 package core
 
 import (
+	"context"
 	"fmt"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/snakoner/go-crypto-robot/internal/algorithm"
@@ -56,7 +56,7 @@ func New(config *Config) (*Core, error) {
 }
 
 // Start trading core, call from main
-func (core *Core) Start() error {
+func (core *Core) Start(ctx context.Context) error {
 	for _, name := range core.Config.Coins {
 		var tokenTracker *models.TokenTracker
 		mp, err := core.Exchange.GetKlines(name, core.Config.Stablecoin, core.Config.Timeframe)
@@ -79,10 +79,10 @@ func (core *Core) Start() error {
 			len(tokenTracker.MarketPoints)))
 
 		go core.Exchange.WebSocketRun(tokenTracker)
-		go core.trackersStart()
+		go core.trackersStart(ctx)
 	}
 
-	time.Sleep(100 * time.Second)
+	<-ctx.Done()
 
 	return nil
 }
