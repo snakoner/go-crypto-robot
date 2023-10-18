@@ -69,6 +69,8 @@ func (core *Core) openTrade(tracker *models.TokenTracker, mp *models.MarketPoint
 	tracker.Stat.CurrentStopLoss = mp.Price * (1. - core.Config.MaxStopLoss/100.)
 	tracker.Stat.CurrentTakeProfit = mp.Price * (1. + core.Config.MaxTakeProfit/100.)
 
+	core.Logger.Info(fmt.Sprintf("open deal. price: %v", mp.Price))
+
 	// [todo] bybit.close_deal
 	if err := core.Exchange.OpenTrade(tracker); err != nil {
 		return err
@@ -87,6 +89,8 @@ func (core *Core) closeTrade(tracker *models.TokenTracker, mp *models.MarketPoin
 	tracker.Stat.ExitPrice = mp.Price
 	tracker.Stat.ExitTime = time.Now().Unix()
 	tracker.Stat.DealActive = false
+
+	core.Logger.Info(fmt.Sprintf("close deal. price: %v", mp.Price))
 
 	// [todo] bybit.close_deal
 	if err := core.Exchange.CloseTrade(tracker); err != nil {
@@ -120,6 +124,7 @@ func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPo
 			tracker.Stat.CurrentStopLoss = newStopLoss
 			tracker.Stat.CurrentTakeProfit = newTakeProfit
 			// [todo] bybit.set_new_stop_take
+			core.Logger.Info(fmt.Sprintf("update limits. sl: %v tp: %v", newStopLoss, newTakeProfit))
 			if err := core.Exchange.UpdateLimits(tracker); err != nil {
 				if err = core.Exchange.CloseTrade(tracker); err != nil {
 					return err
@@ -158,6 +163,7 @@ func (core *Core) trackersStart(ctx context.Context) error {
 
 			// start trade over here
 			if startTrade {
+				core.Logger.Info("start trading")
 				if err := core.openTrade(tracker, &mp); err != nil {
 					core.Logger.Error(fmt.Sprintf("cant start trading %s at %s", tracker.Name, core.Config.Exchange))
 					return err
