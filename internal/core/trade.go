@@ -138,8 +138,8 @@ func (core *Core) trackersStart(ctx context.Context) error {
 	var mp models.MarketPoint
 
 	tracker := core.TokenTrackers[0]
-	time := tracker.GetLastPoint().Time
-	price := tracker.GetLastPoint().Price
+	time := tracker.GetLastPointTime()
+	price := tracker.GetLastPointPrice()
 
 	fmt.Println(mp, time, price)
 

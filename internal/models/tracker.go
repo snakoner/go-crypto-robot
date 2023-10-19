@@ -39,6 +39,14 @@ func (tracker *TokenTracker) GetLastPoint() *MarketPoint {
 	return tracker.MarketPoints[len(tracker.MarketPoints)-1]
 }
 
+func (tracker *TokenTracker) GetLastPointTime() int64 {
+	return tracker.MarketPoints[len(tracker.MarketPoints)-1].Time
+}
+
+func (tracker *TokenTracker) GetLastPointPrice() float64 {
+	return tracker.MarketPoints[len(tracker.MarketPoints)-1].Price
+}
+
 // Add new market point to MP list. Size of list remains the same
 func (tracker *TokenTracker) Push(marketPoint MarketPoint) {
 	tracker.MarketPoints = append(tracker.MarketPoints, &marketPoint)
