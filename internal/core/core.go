@@ -16,7 +16,7 @@ type Core struct {
 	Config        *Config
 	Logger        *logrus.Logger
 	Strategy      *algorithm.Strategy
-	Exchange      exchanges.ExchangeI
+	Exchange      exchanges.Exchange
 	TokenTrackers []*models.TokenTracker
 	LogFile       *os.File
 }

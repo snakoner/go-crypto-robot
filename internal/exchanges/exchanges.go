@@ -4,7 +4,7 @@ import (
 	"github.com/snakoner/go-crypto-robot/internal/models"
 )
 
-type ExchangeI interface {
+type Exchange interface {
 	Connect() error
 	GetWalletBalance() error
 	GetKlines(string, string, string) ([]*models.MarketPoint, error)
