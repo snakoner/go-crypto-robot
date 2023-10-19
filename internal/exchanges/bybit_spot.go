@@ -47,7 +47,7 @@ func NewBybit(publicKey, privateKey string) *BybitExchange {
 
 // Connect to bybit spot, save connection to BybitExchange
 func (e *BybitExchange) Connect() error {
-	client := bybit.NewClient().WithAuth("your api key", "your api secret")
+	client := bybit.NewClient().WithAuth(e.publicKey, e.privateKey)
 	if client == nil {
 		return errno.ErrBybitCouldntAuth
 	}
@@ -103,6 +103,27 @@ func (e *BybitExchange) GetKlines(name string, stable string, timeframe string) 
 	reverseSlice(mPoints)
 
 	return mPoints, nil
+}
+
+func (e *BybitExchange) isConnected() bool {
+	return e.client != nil
+}
+
+func (e *BybitExchange) GetWalletBalance() error {
+	if !e.isConnected() {
+		return errno.ErrBybitNotConnected
+	}
+
+	client := bybit.NewTestClient().WithAuth(e.publicKey, e.privateKey)
+	resp, err := client.V5().Account().GetWalletBalance(bybit.AccountTypeUnified, nil)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println(resp)
+
+	return nil
 }
 
 // Bybit: open market order

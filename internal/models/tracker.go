@@ -21,13 +21,14 @@ type Statistics struct {
 
 // Main trade struct
 type TokenTracker struct {
-	Name         string `json:"name"`
-	Stablecoin   string
-	MarketPoints []*MarketPoint
-	CurrentPrice chan MarketPoint
-	Exit         chan bool
-	Long         bool
-	Stat         Statistics
+	Name            string `json:"name"`
+	Stablecoin      string
+	MarketPoints    []*MarketPoint
+	CurrentPrice    chan MarketPoint
+	Exit            chan bool
+	CloseConnection chan bool
+	Long            bool
+	Stat            Statistics
 }
 
 // Returns last time market point in list

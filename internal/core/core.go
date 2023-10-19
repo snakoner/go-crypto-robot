@@ -83,11 +83,12 @@ func (core *Core) Start(ctx context.Context) error {
 		}
 
 		tokenTracker = &models.TokenTracker{
-			MarketPoints: mp,
-			Name:         name,
-			Stablecoin:   core.Config.Stablecoin,
-			CurrentPrice: make(chan models.MarketPoint),
-			Exit:         make(chan bool),
+			MarketPoints:    mp,
+			Name:            name,
+			Stablecoin:      core.Config.Stablecoin,
+			CurrentPrice:    make(chan models.MarketPoint),
+			Exit:            make(chan bool),
+			CloseConnection: make(chan bool),
 		}
 
 		core.TokenTrackers = append(core.TokenTrackers, tokenTracker)
@@ -103,4 +104,10 @@ func (core *Core) Start(ctx context.Context) error {
 	<-ctx.Done()
 
 	return nil
+}
+
+func (core *Core) CloseAll() {
+	for _, t := range core.TokenTrackers {
+		t.CloseConnection <- true
+	}
 }

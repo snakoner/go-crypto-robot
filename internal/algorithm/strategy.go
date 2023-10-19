@@ -64,7 +64,6 @@ func (s *Strategy) Calculate(tracker *models.TokenTracker) bool {
 			_, res = node.Func(tracker.MarketPoints)
 		}
 
-		res = true
 		if !res {
 			return false
 		}

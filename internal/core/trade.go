@@ -136,17 +136,14 @@ func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPo
 // Run as goroutine. Fetches the value from market point channel and evaluate stratefy
 func (core *Core) trackersStart(ctx context.Context) error {
 	var mp models.MarketPoint
-
+	i := 0
 	tracker := core.TokenTrackers[0]
-	time := tracker.GetLastPointTime()
-	price := tracker.GetLastPointPrice()
-
-	fmt.Println(mp, time, price)
 
 	for {
 		select {
 		case mp = <-tracker.CurrentPrice:
-			fmt.Println(mp)
+			fmt.Printf(" [%d] %v\r", i, mp)
+			i++
 			startTrade := false
 			if !tracker.Stat.DealActive {
 				core.updateMarketPoints(tracker, &mp)
@@ -169,10 +166,11 @@ func (core *Core) trackersStart(ctx context.Context) error {
 			// code
 		case <-tracker.Exit:
 			core.Logger.Info("close websocket connection")
-			return nil
+			core.Logger.Info("try to reconnect")
+			go core.Exchange.WebSocketRun(tracker)
 		case <-ctx.Done():
 			core.Logger.Info("app finished by user")
-			tracker.Exit <- true
+			tracker.CloseConnection <- true
 			return nil
 		}
 	}

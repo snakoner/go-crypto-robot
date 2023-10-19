@@ -16,8 +16,10 @@ func (e *BybitExchange) WebSocketRun(tracker *models.TokenTracker) error {
 
 	defer func() {
 		fmt.Printf("Connection closed for %s\n", tracker.Name)
-		tracker.Exit <- true
-		svc.Close()
+
+		if svc != nil {
+			svc.Close()
+		}
 	}()
 
 	if err != nil {
@@ -38,11 +40,17 @@ func (e *BybitExchange) WebSocketRun(tracker *models.TokenTracker) error {
 			Time:  timeSecond,
 		}
 
+		select {
+		case <-tracker.CloseConnection:
+			return nil
+		default:
+			break
+		}
+
 		return nil
 	})
 
 	if err != nil {
-		tracker.Exit <- true
 		return err
 	}
 
