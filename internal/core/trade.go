@@ -8,36 +8,24 @@ import (
 	"github.com/snakoner/go-crypto-robot/internal/models"
 )
 
-func timeframeToSeconds(timeframe string) int64 {
-	switch timeframe {
-	case "1m":
-		return 60
-	case "3m":
-		return 180
-	case "5m":
-		return 300
-	case "15m":
-		return 900
-	case "30m":
-		return 1800
-	case "1h":
-		return 3600
-	case "2h":
-		return 7200
-	case "4h":
-		return 14400
-	case "12h":
-		return 43200
-	case "1d":
-		return 86400
+var (
+	timeframeToSeconds = map[string]int64{
+		"1m":  60,
+		"3m":  180,
+		"5m":  300,
+		"15m": 900,
+		"30m": 1800,
+		"1h":  3600,
+		"2h":  7200,
+		"4h":  14400,
+		"12h": 43200,
+		"1d":  86400,
 	}
-
-	return 0
-}
+)
 
 // Round time
 func roundedValue(prevTime, currentTime int64, timeframe string) (int64, bool) {
-	timeFrameSeconds := timeframeToSeconds(timeframe)
+	timeFrameSeconds := timeframeToSeconds[timeframe]
 	// round to minute
 	currentTime = currentTime - currentTime%60
 	if currentTime-prevTime >= timeFrameSeconds {

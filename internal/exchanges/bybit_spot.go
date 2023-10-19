@@ -11,6 +11,24 @@ import (
 	"github.com/snakoner/go-crypto-robot/internal/models"
 )
 
+var (
+	intervalToBybitInterval = map[string]bybit.Interval{
+		"1m":   bybit.Interval("1"),
+		"3m":   bybit.Interval("3"),
+		"5m":   bybit.Interval("5"),
+		"15m":  bybit.Interval("15"),
+		"30m":  bybit.Interval("30"),
+		"1h":   bybit.Interval("60"),
+		"2h":   bybit.Interval("120"),
+		"4h":   bybit.Interval("240"),
+		"6h":   bybit.Interval("360"),
+		"12h":  bybit.Interval("720"),
+		"1d":   bybit.Interval("D"),
+		"1w":   bybit.Interval("W"),
+		"1mon": bybit.Interval("M"),
+	}
+)
+
 // Main Bybit exchange structure
 type BybitExchange struct {
 	privateKey string
@@ -49,39 +67,6 @@ func reverseSlice[T any](s []T) {
 	}
 }
 
-func intervalToBybitInterval(timeframe string) bybit.Interval {
-	switch timeframe {
-	case "1m":
-		return bybit.Interval("1")
-	case "3m":
-		return bybit.Interval("3")
-	case "5m":
-		return bybit.Interval("5")
-	case "15m":
-		return bybit.Interval("15")
-	case "30m":
-		return bybit.Interval("30")
-	case "1h":
-		return bybit.Interval("60")
-	case "2h":
-		return bybit.Interval("120")
-	case "4h":
-		return bybit.Interval("240")
-	case "6h":
-		return bybit.Interval("360")
-	case "12h":
-		return bybit.Interval("720")
-	case "1d":
-		return bybit.Interval("D")
-	case "1w":
-		return bybit.Interval("W")
-	case "1mon":
-		return bybit.Interval("M")
-	}
-
-	return bybit.Interval("Unknown")
-}
-
 // [todo] limit, max ret is 200
 func (e *BybitExchange) GetKlines(name string, stable string, timeframe string) ([]*models.MarketPoint, error) {
 	mPoints := []*models.MarketPoint{}
@@ -89,7 +74,7 @@ func (e *BybitExchange) GetKlines(name string, stable string, timeframe string) 
 	param := &bybit.V5GetKlineParam{
 		Category: bybit.CategoryV5Spot,
 		Symbol:   bybit.SymbolV5(strings.ToUpper(fmt.Sprintf("%s%s", name, stable))),
-		Interval: intervalToBybitInterval(timeframe),
+		Interval: intervalToBybitInterval[timeframe],
 	}
 
 	resp, err := e.client.V5().Market().GetKline(*param)
