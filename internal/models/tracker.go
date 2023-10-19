@@ -16,6 +16,7 @@ type Statistics struct {
 	ExitPrice         float64
 	ExitTime          int64
 	CurrentPrice      float64
+	LastMaxPrice      float64
 }
 
 // Main trade struct

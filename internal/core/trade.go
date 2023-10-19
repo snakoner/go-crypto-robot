@@ -66,10 +66,12 @@ func (core *Core) openTrade(tracker *models.TokenTracker, mp *models.MarketPoint
 	tracker.Stat.EnterPrice = mp.Price
 	tracker.Stat.EnterTime = mp.Time
 	tracker.Stat.CurrentPrice = mp.Price
+	tracker.Stat.LastMaxPrice = mp.Price
 	tracker.Stat.CurrentStopLoss = mp.Price * (1. - core.Config.MaxStopLoss/100.)
 	tracker.Stat.CurrentTakeProfit = mp.Price * (1. + core.Config.MaxTakeProfit/100.)
 
 	core.Logger.Info(fmt.Sprintf("open deal. price: %v", mp.Price))
+	core.Logger.Info(fmt.Sprintf("set inital limits. sl: %v tp: %v", tracker.Stat.CurrentStopLoss, tracker.Stat.CurrentTakeProfit))
 
 	// [todo] bybit.close_deal
 	if err := core.Exchange.OpenTrade(tracker); err != nil {
@@ -102,8 +104,12 @@ func (core *Core) closeTrade(tracker *models.TokenTracker, mp *models.MarketPoin
 
 // Change stoploss / takeprofit or close the order if hit
 func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPoint) error {
-	lastPrice := tracker.Stat.CurrentPrice
+	lastPrice := tracker.Stat.LastMaxPrice
 	currPrice := mp.Price
+
+	if currPrice > lastPrice {
+		tracker.Stat.LastMaxPrice = currPrice
+	}
 
 	if currPrice <= tracker.Stat.CurrentStopLoss || currPrice >= tracker.Stat.CurrentTakeProfit {
 		// close deal
@@ -116,9 +122,12 @@ func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPo
 
 	diff := currPrice - lastPrice
 
+	core.Logger.Info(fmt.Sprintf("price: %v", currPrice))
+
 	if diff > 0 {
 		newStopLoss := tracker.Stat.CurrentStopLoss + diff
 		newTakeProfit := tracker.Stat.CurrentTakeProfit + diff
+
 		if newStopLoss > tracker.Stat.CurrentStopLoss {
 			// set stop/take
 			tracker.Stat.CurrentStopLoss = newStopLoss
