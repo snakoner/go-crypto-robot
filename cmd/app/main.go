@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -51,5 +50,4 @@ func main() {
 	if err := core.Start(ctx); err != nil {
 		return
 	}
-	fmt.Println("Finish")
 }
