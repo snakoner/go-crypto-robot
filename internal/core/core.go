@@ -9,6 +9,7 @@ import (
 	"github.com/snakoner/go-crypto-robot/internal/algorithm"
 	"github.com/snakoner/go-crypto-robot/internal/errno"
 	"github.com/snakoner/go-crypto-robot/internal/exchanges"
+	exbybit "github.com/snakoner/go-crypto-robot/internal/exchanges/bybit"
 	"github.com/snakoner/go-crypto-robot/internal/models"
 )
 
@@ -57,7 +58,7 @@ func New(config *Config) (*Core, error) {
 	// new exchange
 	switch config.Exchange {
 	case "bybit":
-		core.Exchange = exchanges.NewBybit(config.PublicKey, config.PrivateKey)
+		core.Exchange = exbybit.NewBybit(config.PublicKey, config.PrivateKey)
 	default:
 		return core, errno.ErrExchangeName
 	}
