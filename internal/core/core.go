@@ -66,6 +66,7 @@ func New(config *Config) (*Core, error) {
 	// exchange connect
 	if err := core.Exchange.Connect(); err != nil {
 		core.Logger.Error(err)
+		return core, err
 	}
 
 	core.Logger.Debug(fmt.Sprintf("%s conn success", config.Exchange))
@@ -98,8 +99,8 @@ func (core *Core) Start(ctx context.Context) error {
 			name+core.Config.Stablecoin,
 			len(tokenTracker.MarketPoints)))
 
-		go core.Exchange.WebSocketRun(tokenTracker)
-		go core.trackersStart(ctx)
+		go core.Exchange.WsRun(tokenTracker)
+		go core.trackersStart(tokenTracker, ctx)
 	}
 
 	<-ctx.Done()

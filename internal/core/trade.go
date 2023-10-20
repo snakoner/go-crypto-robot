@@ -134,10 +134,9 @@ func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPo
 }
 
 // Run as goroutine. Fetches the value from market point channel and evaluate stratefy
-func (core *Core) trackersStart(ctx context.Context) error {
+func (core *Core) trackersStart(tracker *models.TokenTracker, ctx context.Context) error {
 	var mp models.MarketPoint
 	i := 0
-	tracker := core.TokenTrackers[0]
 
 	for {
 		select {
@@ -167,7 +166,7 @@ func (core *Core) trackersStart(ctx context.Context) error {
 		case <-tracker.Exit:
 			core.Logger.Info("close websocket connection")
 			core.Logger.Info("try to reconnect")
-			go core.Exchange.WebSocketRun(tracker)
+			go core.Exchange.WsRun(tracker)
 		case <-ctx.Done():
 			core.Logger.Info("app finished by user")
 			tracker.CloseConnection <- true

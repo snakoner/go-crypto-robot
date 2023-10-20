@@ -6,9 +6,9 @@ import (
 
 type Exchange interface {
 	Connect() error
-	GetWalletBalance() error
+	GetBalance() error
 	GetKlines(string, string, string) ([]*models.MarketPoint, error)
-	WebSocketRun(tracker *models.TokenTracker) error
+	WsRun(tracker *models.TokenTracker) error
 	OpenTrade(tracker *models.TokenTracker) error
 	CloseTrade(tracker *models.TokenTracker) error
 	UpdateLimits(tracker *models.TokenTracker) error

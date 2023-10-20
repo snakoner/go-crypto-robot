@@ -10,7 +10,7 @@ import (
 )
 
 // Run as goroutine. This func send market point to mp channel
-func (e *BybitExchange) WebSocketRun(tracker *models.TokenTracker) error {
+func (e *BybitExchange) WsRun(tracker *models.TokenTracker) error {
 	wsClient := bybit.NewWebsocketClient()
 	svc, err := wsClient.Spot().V1().PublicV1()
 

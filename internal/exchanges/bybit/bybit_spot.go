@@ -109,7 +109,7 @@ func (e *BybitExchange) isConnected() bool {
 	return e.client != nil
 }
 
-func (e *BybitExchange) GetWalletBalance() error {
+func (e *BybitExchange) GetBalance() error {
 	if !e.isConnected() {
 		return errno.ErrBybitNotConnected
 	}
