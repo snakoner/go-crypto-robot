@@ -42,6 +42,8 @@ func NewBybit(publicKey, privateKey string) *BybitExchange {
 		publicKey:  publicKey,
 	}
 
+	fmt.Println(privateKey, publicKey)
+
 	return bybit
 }
 
@@ -109,21 +111,45 @@ func (e *BybitExchange) isConnected() bool {
 	return e.client != nil
 }
 
-func (e *BybitExchange) GetBalance() error {
+func (e *BybitExchange) GetBalance() (*models.Assets, error) {
+	assets := &models.Assets{}
 	if !e.isConnected() {
-		return errno.ErrBybitNotConnected
+		return assets, errno.ErrBybitNotConnected
 	}
 
-	client := bybit.NewTestClient().WithAuth(e.publicKey, e.privateKey)
+	client := bybit.NewClient().WithAuth(e.publicKey, e.privateKey)
 	resp, err := client.V5().Account().GetWalletBalance(bybit.AccountTypeUnified, nil)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		fmt.Println("err", err)
+		return assets, err
 	}
 
-	fmt.Println(resp)
+	for _, val := range resp.Result.List {
+		assets.TotalUsdValue, err = strconv.ParseFloat(val.TotalEquity, 64)
+		if err != nil {
+			return assets, err
+		}
 
-	return nil
+		for _, c := range val.Coin {
+			amount, err := strconv.ParseFloat(c.Equity, 64)
+			if err != nil {
+				return assets, err
+			}
+
+			usdValue, err := strconv.ParseFloat(c.UsdValue, 64)
+			if err != nil {
+				return assets, err
+			}
+
+			assets.Tokens = append(assets.Tokens, models.TokenAsset{
+				Name:     string(c.Coin),
+				Amount:   amount,
+				UsdValue: usdValue,
+			})
+		}
+	}
+
+	return assets, nil
 }
 
 // Bybit: open market order

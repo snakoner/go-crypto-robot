@@ -6,7 +6,7 @@ import (
 
 type Exchange interface {
 	Connect() error
-	GetBalance() error
+	GetBalance() (*models.Assets, error)
 	GetKlines(string, string, string) ([]*models.MarketPoint, error)
 	WsRun(tracker *models.TokenTracker) error
 	OpenTrade(tracker *models.TokenTracker) error

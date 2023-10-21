@@ -95,7 +95,7 @@ func (core *Core) Start(ctx context.Context) error {
 
 		core.TokenTrackers = append(core.TokenTrackers, tokenTracker)
 
-		core.Logger.Debug(fmt.Sprintf("Size of initial data for %s : %d",
+		core.Logger.Debug(fmt.Sprintf("size of initial data for %s : %d",
 			name+core.Config.Stablecoin,
 			len(tokenTracker.MarketPoints)))
 
