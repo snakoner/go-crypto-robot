@@ -1,5 +1,6 @@
 package core
 
+// Initial core config
 type Config struct {
 	IsSpot                 bool     `toml:"is_spot"`
 	LogFilename            string   `toml:"log_filename"`
@@ -17,6 +18,7 @@ type Config struct {
 	WsReconnectionAttempts int      `toml:"ws_reconnection_attempts"`
 }
 
+// New ...
 func NewConfig() (*Config, error) {
 	return &Config{}, nil
 }

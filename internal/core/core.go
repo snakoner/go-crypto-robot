@@ -13,6 +13,7 @@ import (
 	"github.com/snakoner/go-crypto-robot/internal/models"
 )
 
+// Main code structure
 type Core struct {
 	Config        *Config
 	Logger        *logrus.Logger
