@@ -8,4 +8,5 @@ var (
 	ErrExchangeName      = errors.New("unknown exchange name")
 	ErrBybitCouldntAuth  = errors.New("bybit authentication failed")
 	ErrBybitNotConnected = errors.New("exchange not connected")
+	ErrBybitReconLimit   = errors.New("all reconnection attemtps are over")
 )

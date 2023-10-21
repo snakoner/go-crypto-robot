@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/snakoner/go-crypto-robot/internal/errno"
 	"github.com/snakoner/go-crypto-robot/internal/models"
 )
 
@@ -136,6 +137,7 @@ func (core *Core) evaluateDeal(tracker *models.TokenTracker, mp *models.MarketPo
 // Run as goroutine. Fetches the value from market point channel and evaluate stratefy
 func (core *Core) trackersStart(tracker *models.TokenTracker, ctx context.Context) error {
 	var mp models.MarketPoint
+	var reconnects int
 	i := 0
 
 	for {
@@ -166,6 +168,12 @@ func (core *Core) trackersStart(tracker *models.TokenTracker, ctx context.Contex
 		case <-tracker.Exit:
 			core.Logger.Info("close websocket connection")
 			core.Logger.Info("try to reconnect")
+			if reconnects == core.Config.WsReconnectionAttempts {
+				return errno.ErrBybitReconLimit
+			}
+
+			reconnects++
+
 			go core.Exchange.WsRun(tracker)
 		case <-ctx.Done():
 			core.Logger.Info("app finished by user")
