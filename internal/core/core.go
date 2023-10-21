@@ -22,7 +22,7 @@ type Core struct {
 	Exchange      exchanges.Exchange
 	TokenTrackers []*models.TokenTracker
 	LogFile       *os.File
-	MuLock        sync.Mutex
+	Mu            sync.Mutex
 }
 
 // Create trading core and setup, call from main
