@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 	"github.com/snakoner/go-crypto-robot/internal/algorithm"
@@ -21,6 +22,7 @@ type Core struct {
 	Exchange      exchanges.Exchange
 	TokenTrackers []*models.TokenTracker
 	LogFile       *os.File
+	MuLock        sync.Mutex
 }
 
 // Create trading core and setup, call from main
